@@ -1,0 +1,23 @@
+# Inherits from:
+# Source: https://github.com/joncarter1/hydra_ray_job_launcher/blob/main/hydra_plugins/hydra_ray_job_launcher/config.py
+defaults:
+  - ray_job
+
+address: http://${oc.env:RAY_IP}:8265 # Address of the Ray cluster
+tail_logs: True  # Tail job logs asynchronously after submission.
+tolerate_error: True  # Tolerate errors in any of the remote Ray tasks
+max_parallel: null # Maximum parallel Hydra jobs
+
+ray:
+  # Resource configuration for the main process
+  init_cfg: # Arguments for the ray.init call on the head node.
+    runtime_env:
+      conda: aims-ray # Use pre-installed Conda environment.
+      py_modules: null # Upload local Python package.
+      working_dir: "."
+    log_to_driver: False
+  job_cfg: # Arguments for the Ray remote tasks that execute the Hydra jobs
+    runtime_env:
+    num_cpus: ${accelerator.num_cpus}
+    num_gpus: ${accelerator.num_gpus}
+    resources: ${oc.select:accelerator.resources} # Custom resources for the accelerator.

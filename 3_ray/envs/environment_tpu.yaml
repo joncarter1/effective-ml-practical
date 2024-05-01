@@ -1,0 +1,15 @@
+# The Conda environment specification for TPUs
+name: aims-ray
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.14
+  - pip
+  - pip:
+    - torch~=2.2.0
+    - torchvision
+# Core pip packages
+    - -r requirements.txt

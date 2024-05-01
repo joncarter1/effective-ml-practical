@@ -1,0 +1,11 @@
+# RuntimeEnv spec for Ray: https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#specifying-a-runtime-environment-per-job
+# Here we're passing a named Conda environment which is pre-installed.
+# Instead, you can also pass a list of conda packages or pip packages to install.
+# to the conda key in the same format as an environment.yaml file.
+conda: aims-ray
+num_cpus: 1 # Number of CPUs to allocate to the job
+num_gpus: 0 # Number of GPUs to allocate to the job
+resources:
+  TPU: 4 # We only have TPU v4-8 pods in the cluster (v4-8 = 8 TPU cores = 4 TPU chips)
+env_vars: # Env vars to set in the job
+  KEY: "VALUE"

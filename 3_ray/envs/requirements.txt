@@ -1,0 +1,26 @@
+# Common numerical computing libraries.
+numpy>=1.25
+pandas>=2.0.2
+scipy>=1.9.1
+matplotlib
+seaborn
+
+hydra_core >= 1.3.2 # Elegant application configuration from CLI + YAML files.
+hydra_colorlog>=1.2.0 # Colorful log outputs.
+beartype>=0.14 # Lightweight runtime type-checking.
+tqdm>=4.64.1 # Make your for-loops show a smart progress meter.
+ray[default]==2.12.0 # Framework for parallel computing in Python.
+numba>=0.56.4 # JIT Compiler for numerical Python code: https://numba.pydata.org/
+# Additionals for Ray/GCP.
+cryptography
+google-api-python-client
+google-cloud-storage
+cloud-tpu-client
+# Torch install
+torch~=2.2
+torchvision
+einops
+lightning==2.2.3 # PyTorch Lightning
+# Execute Hydra jobs on Ray.
+hydra_ray_job_launcher @ git+https://github.com/joncarter1/hydra_ray_job_launcher.git
+cloudpickle==3.0.0 # Needs to be exactly the same in all node environments for Ray.

@@ -1,0 +1,13 @@
+# The Conda environment specification for CPUs
+name: aims-ray
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.14
+  - nomkl # Fix Mac OS install issues: https://github.com/dmlc/xgboost/issues/1715
+  - pip
+  - pip:
+# Core pip packages
+    - -r requirements.txt

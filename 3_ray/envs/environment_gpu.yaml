@@ -1,0 +1,16 @@
+# The Conda environment specification for GPUs
+name: aims-ray
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.14
+  - pytorch=2.2
+  - pytorch-cuda=11.8
+  - torchvision
+  - pip
+  - pip:
+# Core pip packages
+    - -r requirements.txt

@@ -1,0 +1,4 @@
+num_cpus: 1
+num_gpus: 0
+resources:
+  TPU: 4
