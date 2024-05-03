@@ -10,7 +10,7 @@ For ML research, where there are often many parameters we may wish to vary, Hydr
 ## Instructions
 
 ### 1. Get started.
-Create the Conda environment from the adjacent `env/environment.yml` file and install the local Python package in editable mode. Check that the script runs with default parameters with:
+Create a Conda environment for the project from the adjacent `env/environment.yml` file. From within this directory, check that the script runs with default parameters with:
 ```bash
 python script.py
 ```

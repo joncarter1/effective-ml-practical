@@ -87,23 +87,25 @@ This script will tail the logs from the cloud, but Ctrl+C won't stop the remote 
 ```bash
 python train_model.py --multirun hydra/launcher=ray accelerator=tpu
 ```
-will run the script on a TPU device using a **single** chip (out of a possible four).
+will run the script on a single TPU chip. The cluster used in this practical consists of multiple TPU nodes, which each have four TPUv4 chips. However, this script will just use the first available chip on a single node.
 
 ### c. Training with PyTorch Lightning
-To make use of all four chips on a TPU node, we will use [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/), a wrapper around PyTorch which helps to abstract away lots of the boilerplate involved in ML research. Lightning takes care of tasks such as making sure that data and models are distributed to the correct accelerators, which becomes particularly fiddly in a distributed setting.
+To train on multiple chips, a distributed training strategy is required. A common options is distributed data parallel (DDP) training, where each accelerator (e.g. TPU chip) gets a different slice of the training batch, computes its own gradients, then the gradients are synced between devices.
+
+We will use [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) to perform DDP training. Lightning is a wrapper around PyTorch which helps to abstract away lots of the boilerplate involved in ML research. Lightning takes care of tasks such as making sure that data and models are distributed to the correct accelerators, which becomes particularly fiddly in a distributed training setting where we often have multiple Python processes running over the same piece of code.
 
 ```
 python train_lightning.py --multirun hydra/launcher=ray accelerator=tpu 
 ```
-will train the model across the four TPU chips on a single node, with Lightning handling inter-device communication for you.
+will train the model across the four TPU chips on a single node, with Lightning handling the set-up of inter-device communication e.g. gradient synchronisation for you.
 
-You can train a model with approx. 50m parameters with:
+You can train a model with approx. 50m parameters by running:
 ```
 python train_lightning.py --multirun hydra/launcher=ray accelerator=tpu model=mlp model.hidden_dims='[4096,4096,4096,4096]' train.refresh_rate=1
 ```
 
 ### d. Parallel jobs
-If capacity allows, the following command will run your multi-run jobs in parallel across TPU nodes:
+Where capacity allows, the following multi-run command, sweeping over models and learning rates, will be executed in parallel across TPU nodes:
 ```bash
 python train_lightning.py --multirun hydra/launcher=ray accelerator=tpu model=mlp,cnn optimizer.lr=1e-5,1e-4,1e-3
 ```

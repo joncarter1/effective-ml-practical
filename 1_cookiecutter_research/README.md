@@ -19,38 +19,42 @@ Follow the instructions [here](https://cookiecutter.readthedocs.io/en/stable/ins
 ### 2. Generate a cookiecutter repository.
 To create a new cookiecutter Git repository from the template, `cd` to the directory you usually store your code repositories in (e.g. `cd $HOME/code`) and run:
 ```bash
-cookiecutter https://github.com/joncarter1/cookiecutter_research.git
+cookiecutter https://github.com/joncarter1/cookiecutter_research.git  --checkout deliberate-bugs
 ```
 This will initiate a dialog, enabling you to configure a number of options for the new repository, such as your name, the name of the new project, and the version of Python to use. After entering these options, a new Git repository will be generated within your current directory. The name of the project folder is set by the value of `project_slug` entered during the dialog. (Note, I'd recommend keeping the `mypy` option set to False).
 
-This cookiecutter template combines some useful features specific to Python software development, with some useful ML research tools (e.g. Hydra).</br>
+This cookiecutter template combines some useful features specific to Python software development, with some useful ML research tools (e.g. Hydra). It deliberately contains bugs, which have been introduced to highlight some of the useful features such as automatically configuring code linting, formatting and testing.</br>
 
 More information can be found in the README of the template repository here:
 https://github.com/joncarter1/cookiecutter_research
 </br>The responsibility of individual files and the meaning of configuration options are also provided as in-line annotations for many of the files within the newly generated repository.
 
-### 3. Install the repository environment.
-The cookiecutter template will generate a Conda `environment.yaml` file for the project.</br>
-To install the environment and the adjacent Python package in editable mode, run:
+### 3. Install a dedicated Conda environment for the repository.
+Separate to your base Conda environment, it typically makes sense to keep separate Conda environments for different projects, to avoid dependency conflicts.
+
+The generated project contains an `environment.yaml` file that you can use to store the dependencies for the project. To install the environment and the adjacent Python package within the project in editable mode, run:
 ```bash
 conda env create --file envs/environment.yaml
+conda activate {{ project_slug }} # Replace with name of generated environment
 pip install -e .
-pre-commmit install
+pre-commit install
 ```
+
+Installing your research code as a Python package means that you can import the code from anywhere, e.g. within the notebooks or scripts folder, without having to worry about relative import locations, or modifying the Python path.
+
+The `-e` flag means that the imported package stays up-to-date with the local code within the `src` folder.
+See e.g. [here](https://stackoverflow.com/questions/35064426/when-would-the-e-editable-option-be-useful-with-pip-install) for more information about editable installs and [here](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/) for why a `src` layout is useful.
 
 `pre-commit install` sets up a tool called `pre-commit`, which automatically runs a number of checks on your code whenever you run `git commit`. If these checks fail, the `git commit` is aborted.
 
-
-These checks are configured by the `.pre-commit-config.yaml` file in the repository.</br>
-The checks run include:
+These checks are configured by the `.pre-commit-config.yaml` file in the repository. The checks run include:
 - Checking for large files.
 - Auto-formatting your code.
 - Linting your code, including checking for Python style-guide (PEP 8) compliance, and security issues e.g. hard-coded API keys.
 
 It's possible to create your own custom pre-commit checks, and there are a wide range of community extensions. For more info see: https://pre-commit.com/
 
-It's possible to skip the pre-commit hook by running `git commit` with the `--no-verify` flag.
-</br>You can also manually run the pre-commit checks any time by running `pre-commit run --all-files` from the project root.
+It's possible to skip the pre-commit hook by running `git commit` with the `--no-verify` flag. You can also manually run the pre-commit checks any time by running `pre-commit run --all-files` from the project root.
 
 ### 4. Fix the repository.
 ### a. Formatting, linting and static errors
@@ -63,15 +67,18 @@ If you run:
 git add *  .editorconfig .gitignore .pre-commit-config.yaml
 git commit -m "Initial commit"
 ```
-`pre-commit` will instruct you on how to fix these errors and (unless you explicitly use the `--no-verify` option) won't commit your code until you do so. (Hint: Look at the `scripts/example.py` file for an alternative to the insecure `load_dotenv` function).
+`pre-commit` will fix some of these errors automatically, and instruct you on how to fix the rest. Unless you explicitly use the `--no-verify` option, `pre-commit` won't commit your code until all of these checks pass. (Hint: See the [dotenv](https://pypi.org/project/python-dotenv/#getting-started) library for an alternative to the insecure `load_dotenv` function).
+
+To re-run the checks, remember to stage your new edits with `git add` then run `git commit` again. This may take a few attempts to fix them all.
 
 ### b. Testing
 Next, run `pytest` from the root of the repository. This will run the tests implemented within the `tests` folder. This will automatically generate statistics such as the proportion of code within your package covered by the tests i.e. the test coverage.
 
-In the `utils.py` file, there is a function called `patchify_images` that will fail its associated tests.
-</br>This function is supposed to reshape input images into the input shape used by a Vision Transformer (ViT) model. However, it was generated by [Github Copilot](https://github.com/features/copilot) and isn't quite right.
+In the `utils.py` file, there is a function called `patchify_images` that will fail its associated tests. This function is supposed to reshape input images into the input shape used by a Vision Transformer (ViT) model. However, it was generated by [Github Copilot](https://github.com/features/copilot) and isn't quite right.
 
-**Task**: Fix the function implementation so that the associated unit tests pass. n.b the goal here is not to test your tensor manipulation skills, but to illustrate how we can write simple tests for custom tensor operations. Feel free to find a correct implementation online e.g. from [einops](https://github.com/arogozhnikov/einops) to insert.
+**Task**: Fix the function implementation so that the associated unit tests pass.
+
+The goal here is not to test your tensor manipulation skills, but to illustrate how we can write simple tests for custom tensor operations. Feel free to find a correct implementation online e.g. from [einops](https://github.com/arogozhnikov/einops) to insert.
 
 <sub><sup>n.b. this simple test case comes from (painful) personal experience, where I nearly completely dropped a (good) idea because an iffy `torch.reshape` operation was causing a silent bug in my code.</sup></sub>
 
@@ -86,12 +93,12 @@ It also simplifies configuration of the Python logging library. Try running with
 ```bash
 python example.py hydra.verbose=True
 ```
-to print debug statements to the console
+to print debug statements to the console.
 
 More advanced usage of Hydra is the focus of the next section of the practical.
 
 ### 6. Wrap-up
-In this part of the practical we've automated the creation of a Python research repository using cookiecutter. Including the creation of environment files, a Python package structure, and code quality checks using `pre-commit`.
+In this part of the practical we've automated the creation of a Python research repository using cookiecutter, including the creation of environment files, a Python package structure, and code quality checks using `pre-commit`.
 
 Before moving on, I'd recommend making sure you understand what the following libraries do within the codebase:
 - `beartype`
